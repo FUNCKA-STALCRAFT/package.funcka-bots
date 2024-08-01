@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "toaster"
+version = "0.1.7"
+description = "TOASTER bot local package."
+repository = "https://github.com/FUNCKA-TOASTER/package.toaster"
+documentation = "https://github.com/FUNCKA-TOASTER/package.toaster/wiki"
+authors = [
+    "Oidaho <oidahomain@gmail.com>"
+]
+license = "GPL-3.0-only"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+sqlalchemy = "^2.0.31"
+redis = "^5.0.8"
+loguru = "^0.7.2"
+dill = "^0.3.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
