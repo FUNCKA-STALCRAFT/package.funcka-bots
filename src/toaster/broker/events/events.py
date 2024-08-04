@@ -179,6 +179,7 @@ class Punishment(BaseEvent):
         Raises:
             TypeError: Called when there is an attempt
             to set mode of any type other than 'kick'.
+            Or when mode are not of type 'str'.
         """
         if isinstance(mode, str):
             TypeError("Type of 'mode' argument must be 'str'.")
