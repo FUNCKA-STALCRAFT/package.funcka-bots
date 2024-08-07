@@ -165,10 +165,12 @@ class Punishment(BaseEvent):
         """
         if isinstance(points, int):
             TypeError("Type of 'points' argument must be 'int'.")
-        if self.punishment_type == "warn":
+        if self.punishment_type in ("warn", "unwarn"):
             self.points = points
         else:
-            raise TypeError("Cannot set points to a punishment not a 'warn' type.")
+            raise TypeError(
+                "Cannot set points to a punishment not a 'warn' or 'unwarn' type."
+            )
 
     def set_mode(self, mode: str) -> None:
         """Sets the kick mode.
