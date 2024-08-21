@@ -69,6 +69,7 @@ class Keyboard:
 
         return self
 
+    # TODO: убрать декоратор свойства.
     @property
     def as_dict(self) -> Payload:
         """Returns the data of the keyboard as a dictionary.
@@ -84,6 +85,7 @@ class Keyboard:
 
         return body
 
+    # TODO: убрать декоратор свойства.
     @property
     def json(self) -> str:
         """Converts keyboard object fields to JSON string.
