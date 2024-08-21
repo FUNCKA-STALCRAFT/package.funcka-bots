@@ -4,7 +4,7 @@ File:
     connection.py
 
 About:
-    File describing connection uri builder function.
+    File describing connection uri builder functions.
 """
 
 from urllib.parse import quote
@@ -28,3 +28,16 @@ def build_connection_uri(setup: AlchemySetup, creds: AlchemyCredentials) -> str:
         f"{creds.host}:{creds.port}/"
         f"{setup.database}"
     )
+
+
+def build_sqlite_uri(db_name: str, use_async_driver: bool = False) -> str:
+    """Creates a SQLAlchemy connection URI to the SQLite database.
+
+    Args:
+        db_name (str): Name of database file.
+        use_async_driver (bool, optional): Uses an asynchronous driver if enabled. Defaults to False.
+
+    Returns:
+        str: A formatted connection URI for SQLAlchemy.
+    """
+    return f"sqlite{'+aiosqlite' if use_async_driver else ''}:///{db_name}.db"
