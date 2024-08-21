@@ -1,3 +1,12 @@
+"""Module "handler".
+
+File:
+    abc.py
+
+About:
+    File describing abstract handler class.
+"""
+
 from typing import Any
 from abc import ABC, abstractmethod
 
