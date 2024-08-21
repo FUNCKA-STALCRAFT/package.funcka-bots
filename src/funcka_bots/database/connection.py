@@ -8,7 +8,7 @@ About:
 """
 
 from urllib.parse import quote
-from toaster.credentials import AlchemySetup, AlchemyCredentials
+from funcka_bots.credentials import AlchemySetup, AlchemyCredentials
 
 
 def build_connection_uri(setup: AlchemySetup, creds: AlchemyCredentials) -> str:

@@ -8,7 +8,7 @@ About:
 """
 
 from redis import Redis
-from toaster.credentials import RedisCredentials
+from funcka_bots.credentials import RedisCredentials
 
 
 def build_connection(creds: RedisCredentials) -> Redis:
