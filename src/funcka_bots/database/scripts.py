@@ -4,12 +4,12 @@ File:
     scripts.py
 
 About:
-    File describing the SQLA script decorator.
+    File describing the SQLA script decorators.
 """
 
 from typing import Callable, Optional, Any
 from loguru import logger
-from .database import Database
+from .database import Database, AsyncDatabase
 
 
 def script(auto_commit: bool = True, debug: bool = False) -> Callable:
@@ -19,23 +19,6 @@ def script(auto_commit: bool = True, debug: bool = False) -> Callable:
     as a custom script for sqlalchemy. Using
     this mechanism, you can conveniently call
     the desired set of actions in the right place.
-
-    Example: ::
-
-        @script(auto_commit=False)
-        def add_user(session: Session, name: str, age: int):
-            new_user = User(name=name, age=age)
-            session.add(new_user)
-            session.commit()
-
-        @script(auto_commit=False)
-        def ge_user(session: Session, id: int):
-            user = session.get(User, {"id": id})
-            return user
-
-        # But calling requires Database instance
-        add_user(db, name="Vasya", age=15)
-        get_user(db, id=25611)
     """
 
     def decorator(func: Callable) -> Callable:
@@ -57,6 +40,40 @@ def script(auto_commit: bool = True, debug: bool = False) -> Callable:
 
             finally:
                 session.close()
+
+        return wrapper
+
+    return decorator
+
+
+def async_script(auto_commit: bool = True, debug: bool = False) -> Callable:
+    """An async decorator that implements a custom script wrapper.
+
+    The decorator allows you to mark an async
+    function as a custom script for sqlalchemy.
+    Using this mechanism, you can conveniently call
+    the desired set of actions in the right place.
+    """
+
+    def decorator(func: Callable) -> Callable:
+        async def wrapper(db_instance: AsyncDatabase, *args, **kwargs) -> Optional[Any]:
+            session = db_instance.make_session()
+            try:
+                result = await func(session, *args, **kwargs)
+
+                if auto_commit:
+                    await session.commit()
+
+                return result
+
+            except Exception as error:
+                await session.rollback()
+
+                if debug:
+                    _handle_exception(error, func)
+
+            finally:
+                await session.close()
 
         return wrapper
 
