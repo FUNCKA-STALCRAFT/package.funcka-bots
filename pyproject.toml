@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "toaster"
+name = "funcka_bots"
 version = "0.1.7"
 description = "TOASTER bot local package."
-repository = "https://github.com/FUNCKA-TOASTER/package.toaster"
+repository = "https://github.com/FUNCKA-STALCRAFT/package.funcka-bots"
 documentation = "https://github.com/FUNCKA-TOASTER/package.toaster/wiki"
 authors = [
     "Oidaho <oidahomain@gmail.com>"
