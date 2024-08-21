@@ -15,7 +15,7 @@ from typing import NamedTuple
 class AlchemyCredentials(NamedTuple):
     """Represents the credentials required to connect to a SQLAlchemy DBMS.
 
-    Attributes:
+    Arguments:
         host (str): The hostname of the DBMS server.
         port (int): The port number on which the DBMS server is listening.
         user (str): The username for authentication.
@@ -31,7 +31,7 @@ class AlchemyCredentials(NamedTuple):
 class AlchemySetup(NamedTuple):
     """Represents the setup configuration for a SQLAlchemy database.
 
-    Attributes:
+    Arguments:
         dialect (str): The database dialect (e.g., 'mysql', 'postgresql').
         driver (str): The database driver (e.g., 'pymysql', 'psycopg2').
         database (str): The name of the database to connect to.
@@ -45,7 +45,7 @@ class AlchemySetup(NamedTuple):
 class RedisCredentials(NamedTuple):
     """Represents the credentials required to connect to a Redis server.
 
-    Attributes:
+    Arguments:
         host (str): The hostname of the Redis server.
         port (int): The port number on which the Redis server is listening.
         db (int): The database number.
