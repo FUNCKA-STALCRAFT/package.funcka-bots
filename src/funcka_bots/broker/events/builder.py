@@ -1,10 +1,11 @@
-from typing import Optional, Any, List, Tuple
+from typing import Optional, Any, List, Tuple, Any
 from .events import VkEvent, Punishment, BaseEvent
 from .objects import Payload
 from .objects import (
     Peer,
     User,
     Message,
+    Reply,
     Reaction,
     Button,
     Kick,
@@ -32,6 +33,8 @@ class EventBuilder:
         peer: Payload,
         user: Payload,
         message: Optional[Payload] = None,
+        message_reply: Optional[Payload] = None,
+        message_forward: Optional[List[Payload]] = None,
         button: Optional[Payload] = None,
         reaction: Optional[Payload] = None,
     ) -> BaseEvent:
@@ -43,12 +46,16 @@ class EventBuilder:
             peer (Payload): Payload with conversation data.
             user (Payload): Payload with user data.
             message (Payload, optional): Payload with message data. If there are any.
+            message_reply
+            message_forward
             button (Payload, optional): Payload with data about the pressed button. If there are any.
             reaction (Payload, optional): A payload with data on the response to a message. If there are any.
 
         Returns:
             BaseEvent: An instance of the VkEvent class with the attributes set.
         """
+
+        cls._cat_message_payloads(message, message_reply, message_forward)
 
         necessary_attributes = ((peer, Peer), (user, User))
         optional_attributes = (
@@ -57,15 +64,11 @@ class EventBuilder:
             (reaction, Reaction),
         )
 
-        attributes_values = cls._unpack_attr_payloads(
-            necessary=necessary_attributes,
-            optional=optional_attributes,
+        vkevent = cls._build_event(
+            class_=VkEvent,
+            necessary_attributes=necessary_attributes,
+            optional_attributes=optional_attributes,
         )
-
-        vkevent = VkEvent(type=type, event_id=id)
-        for attribute in attributes_values:
-            vkevent.add_object(name=attribute.__name__.lower(), value=attribute)
-
         return vkevent
 
     @classmethod
@@ -76,6 +79,8 @@ class EventBuilder:
         peer: Payload,
         user: Payload,
         message: Optional[Payload] = None,
+        message_reply: Optional[Payload] = None,
+        message_forward: Optional[List[Payload]] = None,
         warn: Optional[Payload] = None,
         unwarn: Optional[Payload] = None,
         kick: Optional[Payload] = None,
@@ -88,6 +93,8 @@ class EventBuilder:
             peer (Payload): Payload with conversation data.
             user (Payload): Payload with user data.
             message (Payload, optional): Payload with message data. If there are any.
+            message_reply
+            message_forward
             warn (Payload, optional): Payload with warn data. If there are any.
             unwarn (Payload, optional): Payload with unwarn data. If there are any.
             kick (Payload, optional): Payload with kick data. If there are any.
@@ -95,6 +102,7 @@ class EventBuilder:
         Returns:
             BaseEvent: An instance of the Punishment class with the attributes set.
         """
+        cls._cat_message_payloads(message, message_reply, message_forward)
 
         necessary_attributes = ((peer, Peer), (user, User))
         optional_attributes = (
@@ -104,20 +112,42 @@ class EventBuilder:
             (kick, Kick),
         )
 
-        attributes_values = cls._unpack_attr_payloads(
+        punishment = cls._build_event(
+            class_=Punishment,
+            necessary_attributes=necessary_attributes,
+            optional_attributes=optional_attributes,
+        )
+        return punishment
+
+    @classmethod
+    def _build_event(
+        cls,
+        class_: Any,
+        necessary_attributes: ValStructPair = (),
+        optional_attributes: ValStructPair = (),
+    ):
+        attributes_values = cls._unpack_attributes_payloads(
             necessary=necessary_attributes,
             optional=optional_attributes,
         )
 
-        punishment = Punishment(type=type, comment=comment)
-        for attribute in attributes_values:
-            punishment.add_object(name=attribute.__name__.lower(), value=attribute)
+        event = class_(type=type, event_id=id)
+        cls._set_event_attributes(attributes_values, event)
 
-        return punishment
+        return event
 
     @classmethod
     @staticmethod
-    def _unpack_attr_payloads(
+    def _cat_message_payloads(message, reply, forward) -> None:
+        if message:
+            message["reply"] = reply if reply is None else Reply(**reply)
+            message["forward"] = (
+                [] if forward is None else [Reply(**fwd) for fwd in forward]
+            )
+
+    @classmethod
+    @staticmethod
+    def _unpack_attributes_payloads(
         necessary: ValStructPair,
         optional: ValStructPair,
     ) -> AttrValues:
@@ -131,3 +161,9 @@ class EventBuilder:
                 attr_values.append(struct(**attr))
 
         return attr_values
+
+    @classmethod
+    @staticmethod
+    def _set_event_attributes(attributes_values: AttrValues, event: BaseEvent) -> None:
+        for attribute in attributes_values:
+            event.add_object(name=attribute.__name__.lower(), value=attribute)
