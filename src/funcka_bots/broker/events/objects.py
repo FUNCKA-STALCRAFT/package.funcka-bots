@@ -19,7 +19,7 @@ Payload = Dict[str, Union[str, int]]
 class Button(NamedTuple):
     """Class for representing a button press.
 
-    Attributes:
+    Arguments:
         cmid (int): Conversation message ID.
         beid (str): Button event (press) ID.
         payload (Payload): Button payload.
@@ -33,7 +33,7 @@ class Button(NamedTuple):
 class Message(NamedTuple):
     """Class for representing a message.
 
-    Attributes:
+    Arguments:
         cmid (int): Conversation message ID.
         text (str): Message text.
         reply (Optional[Reply]): Replied message.
@@ -51,7 +51,7 @@ class Message(NamedTuple):
 class Reaction(NamedTuple):
     """Class for representing a reaction to a message.
 
-    Attributes:
+    Arguments:
         cmid (int): Conversation message ID.
         rid (int): Reaction ID.
     """
@@ -63,7 +63,7 @@ class Reaction(NamedTuple):
 class Reply(NamedTuple):
     """Class for representing a reply(fwd) to a message.
 
-    Attributes:
+    Arguments:
         uuid (int): User unique ID. Replied message owner.
         cmid (int): Conversation message ID.
         text (str): Message text.
@@ -77,7 +77,7 @@ class Reply(NamedTuple):
 class User(NamedTuple):
     """Class for representing a user.
 
-    Attributes:
+    Arguments:
         uuid (int): User unique ID.
         name (str): Full user name.
         firstname (str): First name.
@@ -95,7 +95,7 @@ class User(NamedTuple):
 class Peer(NamedTuple):
     """Class for representing a peer.
 
-    Attributes:
+    Arguments:
         bpid (int): Bot peer ID.
         cid (int): Chat ID.
         name (str): Peer name.
@@ -104,3 +104,29 @@ class Peer(NamedTuple):
     bpid: int
     cid: int
     name: str
+
+
+class Warn(NamedTuple):
+    """Class for representing a Warn punishment.
+
+    Arguments:
+        NamedTuple (_type_): _description_
+    """
+
+    points: int
+
+
+class Unwarn(Warn):
+    """The same as Warn.
+    Implies a negative number of points.
+    """
+
+
+class Kick(NamedTuple):
+    """Class for representing a Kick punishment.
+
+    Arguments:
+        NamedTuple (_type_): _description_
+    """
+
+    mode: str
