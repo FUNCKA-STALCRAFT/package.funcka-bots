@@ -70,7 +70,7 @@ class BaseEvent(ABCEvent):
         self.__setattr__(name, value)
 
 
-class VkEvent(ABCEvent):
+class VkEvent(BaseEvent):
     """Class for representing an vk event.
 
     Attributes:
@@ -107,7 +107,7 @@ class VkEvent(ABCEvent):
         return string
 
 
-class Punishment(ABCEvent):
+class Punishment(BaseEvent):
     """Class for representing an punishment.
 
     Attributes:
