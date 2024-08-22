@@ -1,4 +1,4 @@
-from typing import Optional, Any, List, Tuple, Any
+from typing import Optional, Any, List, Tuple
 from .events import VkEvent, Punishment, BaseEvent
 from .objects import Payload
 from .objects import (
