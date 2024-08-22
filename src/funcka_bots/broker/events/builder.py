@@ -14,7 +14,7 @@ from .objects import (
 )
 
 ValStructPair = Tuple[Tuple[Payload, Any]]
-AttrValues = List[Any]
+AttrValues = List[Tuple[str, Any]]
 
 
 class EventBuilder:
@@ -154,16 +154,16 @@ class EventBuilder:
         attr_values = []
 
         for attr, struct in necessary:
-            attr_values.append(struct(**attr))
+            attr_values.append((struct.__name__.lower(), struct(**attr)))
 
         for attr, struct in optional:
             if attr is not None:
-                attr_values.append(struct(**attr))
+                attr_values.append((struct.__name__.lower(), struct(**attr)))
 
         return attr_values
 
     @classmethod
     @staticmethod
     def _set_event_attributes(attributes_values: AttrValues, event: BaseEvent) -> None:
-        for attribute in attributes_values:
-            event.add_object(name=attribute.__name__.lower(), value=attribute)
+        for name, value in attributes_values:
+            event.add_object(name=name, value=value)
