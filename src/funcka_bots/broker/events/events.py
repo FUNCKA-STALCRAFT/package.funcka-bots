@@ -133,7 +133,7 @@ class Punishment(BaseEvent):
 
     def __init__(self, punishment_type: str, punishment_comment: str) -> None:
         self.punishment_type = punishment_type
-        self.comment = punishment_comment
+        self.punishment_comment = punishment_comment
 
     def __str__(self) -> str:
         string = (
