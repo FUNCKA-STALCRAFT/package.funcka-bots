@@ -110,7 +110,7 @@ class Warn(NamedTuple):
     """Class for representing a Warn punishment.
 
     Arguments:
-        NamedTuple (_type_): _description_
+        points (int): The number of warn points.
     """
 
     points: int
@@ -126,7 +126,7 @@ class Kick(NamedTuple):
     """Class for representing a Kick punishment.
 
     Arguments:
-        NamedTuple (_type_): _description_
+        mode (str): Kick mode.
     """
 
     mode: str
