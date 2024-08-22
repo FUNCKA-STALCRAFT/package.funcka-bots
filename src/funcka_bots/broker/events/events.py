@@ -7,14 +7,14 @@ About:
     File describing custom Event class.
 """
 
-from typing import Dict, Union, Optional, Any, List
+from typing import Dict, Union, Any
 from abc import ABC, abstractmethod
 
 
 Payload = Dict[str, Union[str, int]]
 
 
-class BaseEvent(ABC):
+class ABCEvent(ABC):
     @abstractmethod
     def __str__(self) -> str:
         pass
@@ -23,7 +23,7 @@ class BaseEvent(ABC):
         return self.__str__()
 
     def as_dict(self) -> Payload:
-        """Converts the BaseEvent object to a dictionary.
+        """Converts the ABCEvent object to a dictionary.
 
         Description:
             This method is used only for logging
@@ -45,8 +45,33 @@ class BaseEvent(ABC):
         return dict_repr
 
 
-class Event(BaseEvent):
-    """Class for representing an event.
+class BaseEvent(ABCEvent):
+    """The base event.
+
+    Description:
+        It includes an empty shell with no hint of
+        data storage. It is necessary, first of all, for
+        typhining. It is from him that events are inherited
+        VkEvent, Punishment, etc.
+    """
+
+    def __str__(self) -> str:
+        return "<The basic event of the bot.>"
+
+    def add_object(self, name: str, value: Any) -> None:
+        """Adds the event data object as an attribute
+        of the class.
+
+        Args:
+            name (str): Object name.
+            value (Any): Object value.
+        """
+
+        self.__setattr__(name, value)
+
+
+class VkEvent(ABCEvent):
+    """Class for representing an vk event.
 
     Attributes:
         event_id (str): Unique identifier for the event.
@@ -67,16 +92,9 @@ class Event(BaseEvent):
     event_id: str = None
     event_type: str = None
 
-    def __init__(self, raw_event: Payload, type: str = "Undefined"):
-        """Initializes an Event object.
-
-        Args:
-            raw_event (dict): Raw dictionary containing event data.
-            type (str): Type of the event (default is "Undefined").
-        """
-
+    def __init__(self, event_id: str, type: str):
         self.event_type = type
-        self.event_id = raw_event.get("event_id")
+        self.event_id = event_id
 
     def __str__(self) -> str:
         string = (
@@ -88,28 +106,32 @@ class Event(BaseEvent):
         )
         return string
 
-    def add_object(self, name: str, value: Any) -> None:
-        """Adds the event data object as an attribute
-        of the class.
 
-        Args:
-            name (str): Object name.
-            value (Any): Object value.
-        """
-
-        self.__setattr__(name, value)
-
-
-class Punishment(BaseEvent):
+class Punishment(ABCEvent):
     """Class for representing an punishment.
 
     Attributes:
         punishment_type (str): Type of the punishment.
+        comment (str): Comment for punishment.
+
+    ---OPTIONAL---
+    Dynamically defined attributes:
+        Always determined:
+            user (User): Data of the user who called the event.
+            peer (Peer): Data of the peer where the event occurred.
+
+        Determined depending on the context of punishment:
+            message (Message): Message data.
+            warn (Warn): The data required to issue a warning.
+            unwarn: The data required to remove the warning.
+            kick (Kick): The data required to exclude the user.
+
     """
 
     punishment_type: str = None
+    comment: str = None
 
-    def __init__(self, type: str = "Undefined", comment: Optional[str] = None) -> None:
+    def __init__(self, type: str, comment: str) -> None:
         self.punishment_type = type
         self.comment = comment
 
@@ -122,70 +144,3 @@ class Punishment(BaseEvent):
             " -->"
         )
         return string
-
-    def set_cmids(self, cmids: Union[int, List[int]]) -> None:
-        """Sets the list of messages to delete when punished.
-
-        Args:
-            cmids (Union[int, List[int]]): Coversation message ids
-
-        Raises:
-            TypeError: Called when the type of the passed argument
-            does not match.
-        """
-        if isinstance(cmids, list):
-            self.cmids = [cmid for cmid in cmids]
-        elif isinstance(cmids, int):
-            self.cmids = [cmids]
-        else:
-            raise TypeError("cmids argument must be 'int' or 'list of int'")
-
-    def set_target(self, bpid: int, uuid: int) -> None:
-        """Sets the user and conversation in which to issue
-        the punishment.
-
-        Args:
-            bpid (int): Bot peer id
-            uuid (int): Unique user id
-        """
-        self.bpid = bpid
-        self.uuid = uuid
-
-    def set_points(self, points: int) -> None:
-        """Sets the number of warn points if the
-        punisment type is a 'warn'.
-
-        Args:
-            points (int): Number of warn points.
-
-        Raises:
-            TypeError: Called when there is an attempt
-            to set penalty points of any type other than
-            'warn'. Or when points are not of type 'int'.
-        """
-        if isinstance(points, int):
-            TypeError("Type of 'points' argument must be 'int'.")
-        if self.punishment_type in ("warn", "unwarn"):
-            self.points = points
-        else:
-            raise TypeError(
-                "Cannot set points to a punishment not a 'warn' or 'unwarn' type."
-            )
-
-    def set_mode(self, mode: str) -> None:
-        """Sets the kick mode.
-
-        Args:
-            mode (str): Kick mode
-
-        Raises:
-            TypeError: Called when there is an attempt
-            to set mode of any type other than 'kick'.
-            Or when mode are not of type 'str'.
-        """
-        if isinstance(mode, str):
-            TypeError("Type of 'mode' argument must be 'str'.")
-        if self.punishment_type == "kick":
-            self.mode = mode
-        else:
-            raise TypeError("Cannot set mode to a punishment not a 'kick' type.")
