@@ -92,8 +92,8 @@ class VkEvent(BaseEvent):
     event_id: str = None
     event_type: str = None
 
-    def __init__(self, event_id: str, type: str):
-        self.event_type = type
+    def __init__(self, event_type: str, event_id: str):
+        self.event_type = event_type
         self.event_id = event_id
 
     def __str__(self) -> str:
@@ -129,18 +129,18 @@ class Punishment(BaseEvent):
     """
 
     punishment_type: str = None
-    comment: str = None
+    punishment_comment: str = None
 
-    def __init__(self, type: str, comment: str) -> None:
-        self.punishment_type = type
-        self.comment = comment
+    def __init__(self, punishment_type: str, punishment_comment: str) -> None:
+        self.punishment_type = punishment_type
+        self.comment = punishment_comment
 
     def __str__(self) -> str:
         string = (
             "<-- "
             f"class Punishment <type: {self.punishment_type}>"
             " | "
-            f"<comment: {self.comment}>"
+            f"<comment: {self.punishment_comment}>"
             " -->"
         )
         return string

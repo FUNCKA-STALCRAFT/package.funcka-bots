@@ -28,8 +28,8 @@ class EventBuilder:
     @classmethod
     def build_vkevent(
         cls,
-        type: str,
-        id: int,
+        event_type: str,
+        event_id: int,
         peer: Payload,
         user: Payload,
         message: Optional[Payload] = None,
@@ -65,7 +65,7 @@ class EventBuilder:
         )
 
         vkevent = cls._build_event(
-            class_=VkEvent,
+            event_instance=VkEvent(event_type=event_type, event_id=event_id),
             necessary_attributes=necessary_attributes,
             optional_attributes=optional_attributes,
         )
@@ -74,8 +74,8 @@ class EventBuilder:
     @classmethod
     def build_punishment(
         cls,
-        type: str,
-        comment: str,
+        punishment_type: str,
+        punishment_comment: str,
         peer: Payload,
         user: Payload,
         message: Optional[Payload] = None,
@@ -113,7 +113,10 @@ class EventBuilder:
         )
 
         punishment = cls._build_event(
-            class_=Punishment,
+            event_instance=Punishment(
+                punishment_type=punishment_type,
+                punishment_comment=punishment_comment,
+            ),
             necessary_attributes=necessary_attributes,
             optional_attributes=optional_attributes,
         )
@@ -122,7 +125,7 @@ class EventBuilder:
     @classmethod
     def _build_event(
         cls,
-        class_: Any,
+        event_instance: Any,
         necessary_attributes: ValStructPair = (),
         optional_attributes: ValStructPair = (),
     ):
@@ -131,10 +134,8 @@ class EventBuilder:
             optional=optional_attributes,
         )
 
-        event = class_(type=type, event_id=id)
-        cls._set_event_attributes(attributes_values, event)
-
-        return event
+        cls._set_event_attributes(attributes_values, event_instance)
+        return event_instance
 
     @classmethod
     @staticmethod
