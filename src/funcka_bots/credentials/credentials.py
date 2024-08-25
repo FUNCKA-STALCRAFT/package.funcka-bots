@@ -15,11 +15,10 @@ from typing import NamedTuple
 class AlchemyCredentials(NamedTuple):
     """Represents the credentials required to connect to a SQLAlchemy DBMS.
 
-    Arguments:
-        host (str): The hostname of the DBMS server.
-        port (int): The port number on which the DBMS server is listening.
-        user (str): The username for authentication.
-        pswd (str): The password for authentication.
+    :param str host: The hostname of the server.
+    :param int port: The port number on which the server is listening.
+    :param str user: The username for authentication.
+    :param str pswd: The password for authentication.
     """
 
     host: str
@@ -31,10 +30,9 @@ class AlchemyCredentials(NamedTuple):
 class AlchemySetup(NamedTuple):
     """Represents the setup configuration for a SQLAlchemy database.
 
-    Arguments:
-        dialect (str): The database dialect (e.g., 'mysql', 'postgresql').
-        driver (str): The database driver (e.g., 'pymysql', 'psycopg2').
-        database (str): The name of the database to connect to.
+    :param str dialect: The database dialect (e.g., `mysql`, `postgresql`).
+    :param str driver:  The database driver (e.g., `pymysql`, `psycopg2`).
+    :param str database: The name of the database.
     """
 
     dialect: str
@@ -45,12 +43,21 @@ class AlchemySetup(NamedTuple):
 class RedisCredentials(NamedTuple):
     """Represents the credentials required to connect to a Redis server.
 
-    Arguments:
-        host (str): The hostname of the Redis server.
-        port (int): The port number on which the Redis server is listening.
-        db (int): The database number.
+    :param str host: The hostname of the server.
+    :param int port: The port number on which the server is listening.
+    :param int db: The database number.
     """
 
     host: str
     port: int
     db: int
+
+
+class RabbitMQCredentials(AlchemyCredentials):
+    """Represents the credentials required to connect to a RabbitMQ.
+
+    :param str host: The hostname of the server.
+    :param int port: The port number on which the server is listening.
+    :param str user: The username for authentication.
+    :param str pswd: The password for authentication.
+    """
