@@ -7,7 +7,7 @@ About:
     File describing abstract handler class.
 """
 
-from funcka_bots.broker.events import BaseEvent
+from funcka_bots.events import BaseEvent
 from abc import ABC, abstractmethod
 
 

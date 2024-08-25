@@ -1,4 +1,4 @@
-from funcka_bots.broker.events import BaseEvent
+from funcka_bots.events import BaseEvent
 from funcka_bots.broker import (
     Subscriber,
     Publisher,
