@@ -1,22 +1,13 @@
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, Session
-from sqlalchemy.dialects.mysql import BIGINT, VARCHAR
-from funcka_bots.database import Database, script
-from funcka_bots.database import build_connection_uri
-from .credentials import AlchemyCredentials, AlchemySetup
+from sqlalchemy.types import INTEGER, TEXT
+from funcka_bots.database import SyncDB
+from funcka_bots.database import build_sqlite_uri
 
 
 # First, we create a database instance,
-# which will allow us to interact with MySQL.
-# When building URIs for DBMS, we use creds and setup
-#  that we prepared earlier in "examples/credentials.py "
+# which will allow us to interact with SQLite.
 
-db_instance = Database(
-    connection_uri=build_connection_uri(
-        setup=AlchemySetup,
-        creds=AlchemyCredentials,
-    ),
-    debug=False,
-)
+db_instance = SyncDB(connection_uri=build_sqlite_uri(), debug=False)
 
 # Next, we create a basic one in the classic way
 # ORM table model via SQLAlchemy.
@@ -32,8 +23,8 @@ BaseModel = declarative_base()
 class User(BaseModel):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, unique=True)
-    name: Mapped[str] = mapped_column(VARCHAR(255))
+    id: Mapped[int] = mapped_column(INTEGER, primary_key=True, unique=True)
+    name: Mapped[str] = mapped_column(TEXT(255))
 
 
 # In order to interact with DBMS
@@ -43,10 +34,10 @@ class User(BaseModel):
 # And in case of an error - a rollback.
 
 
-@script(auto_commit=False, debug=True)
-def do_smt(session: Session) -> None:
-    user = session.get(User, {"id": 25})
-    print(user)
+@db_instance.script(auto_commit=False, debug=True)
+def get_user(session: Session, user_id: int) -> str | None:
+    user = session.get(User, {"id": user_id})
+    return user if user is None else user.name
 
 
 # Please note that the script also has the option to specify
@@ -63,4 +54,4 @@ def main() -> None:
     # arguments of the "do_smt" function (which is mandatory),
     # When calling the script itself, a database instance must
     # be submitted for input.
-    do_smt(db_instance)
+    get_user(25)
