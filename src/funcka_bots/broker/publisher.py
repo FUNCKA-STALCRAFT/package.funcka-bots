@@ -21,7 +21,7 @@ class Publisher(BaseWorker):
         """Publishes a serialized object to a queue.
 
         :param Any obj: Object to be serialized and published.
-        :param str channel_name: Name of the Redis channel to publish to.
+        :param str queue_name: Name of the Redis channel to publish to.
         """
         channel = self._get_channel()
         self._check_queue(queue_name=queue_name, channel=channel)
