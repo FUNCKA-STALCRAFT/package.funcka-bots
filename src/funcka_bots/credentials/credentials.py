@@ -57,7 +57,10 @@ class RabbitMQCredentials(AlchemyCredentials):
     """Represents the credentials required to connect to a RabbitMQ.
 
     :param str host: The hostname of the server.
+    :param str vhost: The RabbitMQ virtual host.
     :param int port: The port number on which the server is listening.
     :param str user: The username for authentication.
     :param str pswd: The password for authentication.
     """
+
+    vhost: str
