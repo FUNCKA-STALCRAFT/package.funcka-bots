@@ -24,7 +24,7 @@ class Publisher(BaseWorker):
         :param str queue_name: Name of the Redis channel to publish to.
         """
         channel = self._get_channel()
-        self._check_queue(queue_name=queue_name, channel=channel)
+        self._declare_queue(queue_name=queue_name, channel=channel)
 
         channel.basic_publish(
             exchange="",
