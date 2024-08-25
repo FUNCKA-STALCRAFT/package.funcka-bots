@@ -12,6 +12,7 @@ class BaseWorker:
         params = ConnectionParameters(
             host=creds.host,
             port=creds.port,
+            virtual_host=creds.vhost,
             credentials=PlainCredentials(
                 username=creds.user,
                 password=creds.pswd,
