@@ -32,3 +32,4 @@ class Publisher(BaseWorker):
             body=self._serialize(obj),
         )
         logger.info(f"Object <{obj}> has been sent to the queue <{queue_name}>")
+        channel.close()

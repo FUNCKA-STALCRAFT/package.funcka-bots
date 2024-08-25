@@ -36,3 +36,5 @@ class Subscriber(BaseWorker):
                 obj = self._deserialize(body)
                 logger.info(f"Received <{obj}> from the queue '{queue_name}'.")
                 yield self._deserialize(body)
+
+        channel.close()
