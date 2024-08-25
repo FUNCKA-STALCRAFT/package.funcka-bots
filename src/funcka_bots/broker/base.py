@@ -23,7 +23,7 @@ class BaseWorker:
             logger.warning(channel_tag + f"No queue named {queue_name} found.")
 
             channel.queue_declare(queue=queue_name)
-            logger.info(channel_tag + f"Creating a new queue {queue_name}")
+            logger.info(channel_tag + f"Creating a new queue {queue_name}.")
 
     @staticmethod
     def _serialize(obj: Any) -> ByteString:
