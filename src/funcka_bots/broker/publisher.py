@@ -9,25 +9,16 @@ About:
     serialized objects to Redis channels.
 """
 
-from typing import ByteString, Any
-import dill as pickle
-from redis import Redis
+from .base import BaseWorker
+from typing import Any, Optional
 from loguru import logger
 
 
-class Publisher:
-    """Initializes the Publisher with a Redis client.
+class Publisher(BaseWorker):
+    """RabbitMQ publisher class."""
 
-    Description:
-        Class for publishing serialized objects to Redis channels.
-
-    """
-
-    def __init__(self, client: Redis) -> None:
-        self.client = client
-
-    def publish(self, obj: Any, channel_name: str) -> int:
-        """Publishes a serialized object to a Redis channel.
+    def publish(self, obj: Any, queue_name: str) -> Optional[str]:
+        """Publishes a serialized object to a queue.
 
         Args:
             obj (object): Object to be serialized and published.
@@ -36,13 +27,14 @@ class Publisher:
         Returns:
             int: Status code indicating the result of the publish operation.
         """
+        channel = self._get_channel()
+        self._check_queue(queue_name=queue_name, channel=channel)
 
-        logger.info(f"Sending object: {obj}")
-        data = self.__serialize(obj)
-        status = self.client.publish(channel_name, data)
+        status = channel.basic_publish(
+            exchange="",
+            routing_key=queue_name,
+            body=self._serialize(obj),
+        )
+        logger.info(f"Object <{obj}> has been sent to the queue <{queue_name}>")
 
         return status
-
-    @staticmethod
-    def __serialize(obj: Any) -> ByteString:
-        return pickle.dumps(obj=obj, protocol=pickle.HIGHEST_PROTOCOL)
