@@ -20,11 +20,9 @@ class Subscriber(BaseWorker):
     def listen(self, queue_name: str) -> Any:
         """Listens to messages on a specified RabbitMQ queue and deserializes them.
 
-        Args:
-            channel_name (str): Name of the Redis channel to listen to.
-
-        Yields:
-            object: Deserialized object received from the channel.
+        :param st channel_name: Name of the Redis channel to listen to.
+        :return: Deserialized object received from the channel.
+        :rtype: Any
         """
         channel = self._get_channel()
         self._check_queue(queue_name=queue_name, channel=channel)
