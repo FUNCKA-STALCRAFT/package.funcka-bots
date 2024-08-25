@@ -53,7 +53,7 @@ class RedisCredentials(NamedTuple):
     db: int
 
 
-class RabbitMQCredentials(AlchemyCredentials):
+class RabbitMQCredentials(NamedTuple):
     """Represents the credentials required to connect to a RabbitMQ.
 
     :param str host: The hostname of the server.
@@ -64,3 +64,7 @@ class RabbitMQCredentials(AlchemyCredentials):
     """
 
     vhost: str
+    host: str
+    port: int
+    user: str
+    pswd: str
