@@ -1,13 +1,22 @@
 from typing import ByteString, Any
 from pika import BlockingConnection, ConnectionParameters
 from pika.adapters.blocking_connection import BlockingChannel
+from pika.credentials import PlainCredentials
+from funcka_bots.credentials import RabbitMQCredentials
 from loguru import logger
 import dill as pickle
 
 
 class BaseWorker:
-    def __init__(self, host: str, port: int) -> None:
-        params = ConnectionParameters(host=host, port=port)
+    def __init__(self, creds: RabbitMQCredentials) -> None:
+        params = ConnectionParameters(
+            host=creds.host,
+            port=creds.port,
+            credentials=PlainCredentials(
+                username=creds.user,
+                password=creds.pswd,
+            ),
+        )
         self.connection = BlockingConnection(params)
 
     def _get_channel(self, channel_id: int = 1) -> BlockingChannel:
