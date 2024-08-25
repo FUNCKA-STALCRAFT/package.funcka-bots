@@ -19,7 +19,6 @@ dill = "^0.3.8"
 pymysql = "^1.1.1"
 aiosqlite = "^0.20.0"
 aiomysql = "^0.2.0"
-kafka-python = "^2.0.2"
 
 
 [tool.poetry.dev-dependencies]
