@@ -1,4 +1,4 @@
-from typing import ByteString, Any
+from typing import ByteString, Any, Optional
 from pika import BlockingConnection, ConnectionParameters
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.credentials import PlainCredentials
@@ -20,13 +20,12 @@ class BaseWorker:
         )
         self.connection = BlockingConnection(params)
 
-    def _get_channel(self, channel_id: int = 1) -> BlockingChannel:
+    def _get_channel(self, channel_id: Optional[int] = None) -> BlockingChannel:
         return self.connection.channel(channel_number=channel_id)
 
     def _check_queue(self, queue_name: str, channel: BlockingChannel) -> None:
         try:
             channel.queue_declare(queue=queue_name, passive=True)
-            channel.basic_publish
 
         except Exception:
             channel_tag = f"Channel #{channel.channel_number}: "
