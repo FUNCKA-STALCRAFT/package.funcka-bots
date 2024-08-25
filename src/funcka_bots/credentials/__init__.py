@@ -11,10 +11,12 @@ from .credentials import (
     AlchemyCredentials,
     AlchemySetup,
     RedisCredentials,
+    RabbitMQCredentials,
 )
 
 __all__ = (
-    "AlchemyCredentials",  # To store credentials required for SQLAlchemy database connections.
-    "AlchemySetup",  # To store setup configurations for SQLAlchemy databases.
-    "RedisCredentials",  # To store credentials required for Redis server connections.
+    "AlchemyCredentials",
+    "AlchemySetup",
+    "RedisCredentials",
+    "RabbitMQCredentials",
 )
