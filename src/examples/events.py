@@ -1,4 +1,4 @@
-from funcka_bots.broker.events import BaseEvent, event_builder
+from funcka_bots.events import BaseEvent, event_builder
 
 
 vkevent: BaseEvent = event_builder.build_vkevent(
