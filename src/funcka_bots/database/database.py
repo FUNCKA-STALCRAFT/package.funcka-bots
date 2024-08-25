@@ -4,138 +4,97 @@ File:
     database.py
 
 About:
-    File describing the Databse and AsyncDatabase classes.
+    File describing the Sync and Async Database classes.
 """
 
-from sqlalchemy import create_engine, Engine
-from sqlalchemy.orm import (
-    Session,
-    sessionmaker,
-    declarative_base,
-    DeclarativeBase,
-)
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Callable, Optional, Any
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import Session, DeclarativeBase
+from sqlalchemy import create_engine
+from .base import BaseDB
 
 
-BaseModel = declarative_base()
-
-
-class Database:
-    """SQLA Database class."""
+class SyncDB(BaseDB):
+    """SQLAlchemy Database class."""
 
     def __init__(self, connection_uri: str, debug: bool = False) -> None:
-        self._engine = create_engine(
-            connection_uri,
-            echo=debug,
-            pool_pre_ping=True,
-        )
-        self._session = sessionmaker(
-            bind=self._engine,
-            autoflush=False,
-            class_=Session,
+        super().__init__(
+            engine_creation_func=create_engine,
+            session_class=Session,
+            connection_uri=connection_uri,
+            debug=debug,
         )
 
-    def create_tables(self, base: DeclarativeBase):
-        """Creates all tables defined in the provided
-        SQLAlchemy base model.
-
-        Args:
-            base (Any): The base model containing
-            metadata for tables to be created.
-        """
-
+    def create_tables(self, base: DeclarativeBase) -> None:
         metadata = base.metadata
         metadata.create_all(self._engine)
 
-    def drop_tables(self, base: DeclarativeBase):
-        """Drops all tables defined in the provided
-        SQLAlchemy base model.
-
-        Args:
-            base (Any): The base model containing
-            metadata for tables to be dropped.
-        """
-
+    def drop_tables(self, base: DeclarativeBase) -> None:
         metadata = base.metadata
         metadata.drop_all(self._engine)
 
-    def make_session(self) -> Session:
-        """Creates and returns a new SQLAlchemy session.
+    def script(self, auto_commit: bool = True, debug: bool = False) -> Callable:
+        def decorator(func: Callable) -> Callable:
+            def wrapper(*args, **kwargs) -> Optional[Any]:
+                session = self.make_session()
+                try:
+                    result = func(session, *args, **kwargs)
+                    if auto_commit:
+                        session.commit()
+                    return result
 
-        Returns:
-            Session: A new SQLAlchemy session.
-        """
+                except Exception as error:
+                    session.rollback()
+                    if debug:
+                        self._handle_exception(error, func)
 
-        return self._session()
+                finally:
+                    session.close()
 
-    @property
-    def engine(self) -> Engine:
-        """Returns the SQLAlchemy engine instance.
+            return wrapper
 
-        Returns:
-            Engine: The SQLAlchemy engine instance.
-        """
-
-        return self._engine
+        return decorator
 
 
-class AsyncDatabase:
+class AsyncDB(BaseDB):
     """SQLA async Database class."""
 
     def __init__(self, connection_uri: str, debug: bool = False) -> None:
-        self._engine = create_async_engine(
-            connection_uri,
-            echo=debug,
-            pool_pre_ping=True,
-        )
-        self._session = sessionmaker(
-            bind=self._engine,
-            autoflush=False,
-            class_=AsyncSession,
+        super().__init__(
+            engine_creation_func=create_async_engine,
+            session_class=AsyncSession,
+            connection_uri=connection_uri,
+            debug=debug,
         )
 
     async def create_tables(self, base: DeclarativeBase):
-        """Creates all tables defined in the provided
-        SQLAlchemy base model.
-
-        Args:
-            base (Any): The base model containing
-            metadata for tables to be created.
-        """
-
         metadata = base.metadata
         async with self._engine.begin() as connection:
             await connection.run_sync(metadata.create_all)
 
     async def drop_tables(self, base: DeclarativeBase):
-        """Drops all tables defined in the provided
-        SQLAlchemy base model.
-
-        Args:
-            base (Any): The base model containing
-            metadata for tables to be dropped.
-        """
-
         metadata = base.metadata
         async with self._engine.begin() as connection:
             await connection.run_sync(metadata.drop_all)
 
-    def make_session(self) -> AsyncSession:
-        """Creates and returns a new SQLAlchemy async session.
+    def script(self, auto_commit: bool = True, debug: bool = False) -> Callable:
+        def decorator(func: Callable) -> Callable:
+            async def wrapper(*args, **kwargs) -> Optional[Any]:
+                session = self.make_session()
+                try:
+                    result = await func(session, *args, **kwargs)
+                    if auto_commit:
+                        await session.commit()
+                    return result
 
-        Returns:
-            AsyncSession: A new SQLAlchemy async session.
-        """
+                except Exception as error:
+                    await session.rollback()
+                    if debug:
+                        self._handle_exception(error, func)
 
-        return self._session()
+                finally:
+                    await session.close()
 
-    @property
-    def engine(self) -> AsyncEngine:
-        """Returns the SQLAlchemy async engine instance.
+            return wrapper
 
-        Returns:
-            AsyncEngine: The SQLAlchemy async engine instance.
-        """
-
-        return self._engine
+        return decorator

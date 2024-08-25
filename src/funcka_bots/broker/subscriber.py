@@ -9,41 +9,30 @@ About:
     and deserializes incoming messages.
 """
 
-from typing import Any, ByteString
-import dill as pickle
-from redis import Redis
+from .base import BaseWorker
+from typing import Any
 from loguru import logger
 
 
-class Subscriber:
-    """Initializes the Subscriber with a Redis pubsub client.
+class Subscriber(BaseWorker):
+    """RabbitMQ subscriber class."""
 
-    Descriprion:
-        Class for subscribing to Redis channels and deserializing
-        incoming messages.
-    """
+    def listen(self, queue_name: str) -> Any:
+        """Listens to messages on a specified RabbitMQ queue and deserializes them.
 
-    def __init__(self, client: Redis) -> None:
-        self.client = client.pubsub()
-
-    def listen(self, channel_name: str) -> Any:
-        """Listens to messages on a specified Redis channel and deserializes them.
-
-        Args:
-            channel_name (str): Name of the Redis channel to listen to.
-
-        Yields:
-            object: Deserialized object received from the channel.
+        :param st channel_name: Name of the Redis channel to listen to.
+        :return: Deserialized object received from the channel.
+        :rtype: Any
         """
+        channel = self._get_channel()
+        self._check_queue(queue_name=queue_name, channel=channel)
 
-        self.client.subscribe(channel_name)
-        logger.info("Waiting for events...")
-        for event in self.client.listen():
-            if event.get("type") == "message":
-                deserialized = self.__deserialize(event.get("data"))
-                logger.info(f"Recived new event: \n{deserialized}")
-                yield deserialized
-
-    @staticmethod
-    def __deserialize(data: ByteString) -> Any:
-        return pickle.loads(str=data)
+        logger.info(f"Waiting for messages from the queue '{queue_name}'...")
+        while True:
+            method, properties, body = channel.basic_get(
+                queue=queue_name, auto_ack=True
+            )
+            if body is not None:
+                obj = self._deserialize(body)
+                logger.info(f"Received <{obj}> from the queue '{queue_name}'.")
+                yield self._deserialize(body)
