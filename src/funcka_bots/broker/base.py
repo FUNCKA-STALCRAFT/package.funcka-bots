@@ -26,7 +26,6 @@ class BaseWorker:
     def _check_queue(self, queue_name: str, channel: BlockingChannel) -> None:
         try:
             channel.queue_declare(queue=queue_name, passive=True)
-            channel.basic_publish
 
         except Exception:
             channel_tag = f"Channel #{channel.channel_number}: "
