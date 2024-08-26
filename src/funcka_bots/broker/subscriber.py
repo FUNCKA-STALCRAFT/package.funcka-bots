@@ -9,18 +9,20 @@ About:
     and deserializes incoming messages.
 """
 
-from .base import BaseWorker
+import time
 from typing import Any
 from loguru import logger
+from .base import BaseWorker
 
 
 class Subscriber(BaseWorker):
     """RabbitMQ subscriber class."""
 
-    def listen(self, queue_name: str) -> Any:
+    def listen(self, queue_name: str, td: float = 0.2) -> Any:
         """Listens to messages on a specified RabbitMQ queue and deserializes them.
 
         :param str queue_name: Name of the Redis channel to listen to.
+        :param float td: Delay between iterations of receiving messages. `Defaut: 0.2`.
         :return: Deserialized object received from the channel.
         :rtype: Any
         """
@@ -36,5 +38,8 @@ class Subscriber(BaseWorker):
                 obj = self._deserialize(body)
                 logger.info(f"Received <{obj}> from the queue '{queue_name}'.")
                 yield self._deserialize(body)
+
+            else:
+                time.sleep(td)
 
         channel.close()
