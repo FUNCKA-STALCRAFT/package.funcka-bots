@@ -18,7 +18,8 @@ class BaseWorker:
                 username=creds.user,
                 password=creds.pswd,
             ),
-            heartbeat=0,
+            heartbeat=120,
+            blocked_connection_timeout=100,
         )
         self._connect()
 
