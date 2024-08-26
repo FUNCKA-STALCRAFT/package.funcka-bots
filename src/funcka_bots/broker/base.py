@@ -39,7 +39,7 @@ class BaseWorker:
 
     def _pre_ping(self):
         if not (self.connection and self.connection.is_open):
-            self.connect()
+            self._connect()
 
     def _get_channel(self, channel_id: Optional[int] = None) -> BlockingChannel:
         return self.connection.channel(channel_number=channel_id)
