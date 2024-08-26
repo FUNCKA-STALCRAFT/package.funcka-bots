@@ -2,13 +2,15 @@ from typing import ByteString, Any, Optional
 from pika import BlockingConnection, ConnectionParameters
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.credentials import PlainCredentials
+from pika.exceptions import AMQPConnectionError
 from funcka_bots.credentials import RabbitMQCredentials
+from loguru import logger
 import dill as pickle
 
 
 class BaseWorker:
     def __init__(self, creds: RabbitMQCredentials) -> None:
-        params = ConnectionParameters(
+        self.params = ConnectionParameters(
             host=creds.host,
             port=creds.port,
             virtual_host=creds.vhost,
@@ -17,7 +19,25 @@ class BaseWorker:
                 password=creds.pswd,
             ),
         )
-        self.connection = BlockingConnection(params)
+        self._connect()
+
+    def _connect(self, attempts: int = 5) -> None:
+        try:
+            attempts -= 1
+            self.connection = BlockingConnection(self.params)
+
+        except AMQPConnectionError as e:
+            logger.info(f"Error connecting to RabbitMQ: {e}")
+            if attempts > 0:
+                logger.info("Reconnecting... ")
+                self._connect(attempts)
+
+            else:
+                logger.error("Failed to connect to RabbitMQ.")
+
+    def _pre_ping(self):
+        if not (self.connection and self.connection.is_open):
+            self.connect()
 
     def _get_channel(self, channel_id: Optional[int] = None) -> BlockingChannel:
         return self.connection.channel(channel_number=channel_id)

@@ -26,6 +26,7 @@ class Subscriber(BaseWorker):
         :return: Deserialized object received from the channel.
         :rtype: Any
         """
+        self._pre_ping()
         channel = self._get_channel()
         self._declare_queue(queue_name=queue_name, channel=channel)
 
