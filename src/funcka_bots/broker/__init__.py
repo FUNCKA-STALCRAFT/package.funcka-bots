@@ -7,11 +7,7 @@ About:
     Initializing the "broker" module.
 """
 
-from .publisher import Publisher
-from .subscriber import Subscriber
+from .broker import Broker
 
 
-__all__ = (
-    "Publisher",
-    "Subscriber",
-)
+__all__ = ("Broker",)

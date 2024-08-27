@@ -1,22 +1,39 @@
 """Module "broker".
 
 File:
-    subscriber.py
+    publisher.py
 
 About:
     File describing the implementation of the
-    Subscriber class, which listens to Redis channels
-    and deserializes incoming messages.
+    Publisher class, which facilitates publishing
+    serialized objects to Redis channels.
 """
 
 import time
 from typing import Any
 from loguru import logger
-from .base import BaseWorker
+from .base import BaseBroker
 
 
-class Subscriber(BaseWorker):
-    """RabbitMQ subscriber class."""
+class Broker(BaseBroker):
+    """RabbitMQ broker class."""
+
+    def publish(self, obj: Any, queue_name: str) -> None:
+        """Publishes a serialized object to a queue.
+
+        :param Any obj: Object to be serialized and published.
+        :param str queue_name: Name of the Redis channel to publish to.
+        """
+        channel = self._get_channel()
+        self._declare_queue(queue_name=queue_name, channel=channel)
+
+        channel.basic_publish(
+            exchange="",
+            routing_key=queue_name,
+            body=self._serialize(obj),
+        )
+        logger.info(f"Object <{obj}> has been sent to the queue <{queue_name}>")
+        channel.close()
 
     def listen(self, queue_name: str, td: float = 0.2) -> Any:
         """Listens to messages on a specified RabbitMQ queue and deserializes them.
@@ -26,8 +43,6 @@ class Subscriber(BaseWorker):
         :return: Deserialized object received from the channel.
         :rtype: Any
         """
-        self._pre_ping()
-
         channel = self._get_channel()
         self._declare_queue(queue_name=queue_name, channel=channel)
 

@@ -8,7 +8,7 @@ from loguru import logger
 import dill as pickle
 
 
-class BaseWorker:
+class BaseBroker:
     def __init__(self, creds: RabbitMQCredentials) -> None:
         self.params = ConnectionParameters(
             host=creds.host,
